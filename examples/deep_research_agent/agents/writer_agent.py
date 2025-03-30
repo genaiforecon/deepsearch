@@ -13,7 +13,7 @@ WRITER_PROMPT = (
 )
 
 
-class FinancialReportData(BaseModel):
+class ReportData(BaseModel):
     short_summary: str
     """A short 2‑3 sentence executive summary."""
 
@@ -27,8 +27,8 @@ class FinancialReportData(BaseModel):
 # Note: We will attach handoffs to specialist analyst agents at runtime in the manager.
 # This shows how an agent can use handoffs to delegate to specialized subagents.
 writer_agent = Agent(
-    name="FinancialWriterAgent",
+    name="WriterAgent",
     instructions=WRITER_PROMPT,
-    model="gpt-4.5-preview-2025-02-27",
-    output_type=FinancialReportData,
+    #model="gpt-4.5-preview-2025-02-27",
+    output_type=ReportData,
 )

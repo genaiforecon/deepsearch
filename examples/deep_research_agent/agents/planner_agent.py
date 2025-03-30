@@ -2,10 +2,6 @@ from pydantic import BaseModel
 
 from agents import Agent
 
-# Generate a plan of searches to ground the financial analysis.
-# For a given financial question or company, we want to search for
-# recent news, official filings, analyst commentary, and other
-# relevant background.
 PROMPT = (
     "You are a senior economist at the world bank. Given a research request, "
     "produce a set of web searches to gather the context needed. Aim for recent "
@@ -15,7 +11,7 @@ PROMPT = (
 )
 
 
-class FinancialSearchItem(BaseModel):
+class SearchItem(BaseModel):
     reason: str
     """Your reasoning for why this search is relevant."""
 
@@ -23,14 +19,14 @@ class FinancialSearchItem(BaseModel):
     """The search term to feed into a web (or file) search."""
 
 
-class FinancialSearchPlan(BaseModel):
-    searches: list[FinancialSearchItem]
+class SearchPlan(BaseModel):
+    searches: list[SearchItem]
     """A list of searches to perform."""
 
 
 planner_agent = Agent(
-    name="FinancialPlannerAgent",
+    name="PlannerAgent",
     instructions=PROMPT,
     model="o3-mini",
-    output_type=FinancialSearchPlan,
+    output_type=SearchPlan,
 )

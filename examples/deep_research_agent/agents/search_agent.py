@@ -2,7 +2,7 @@ from agents import Agent, WebSearchTool
 from agents.model_settings import ModelSettings
 
 # Given a search term, use web search to pull back a brief summary.
-# Summaries should be concise but capture the main financial points.
+# Summaries should be concise but capture the main points.
 INSTRUCTIONS = (
     "You are a research assistant specializing in economics, data analysis, and coding. "
     "Given a search term, use web search to retrieve up‑to‑date context and "
@@ -12,7 +12,7 @@ INSTRUCTIONS = (
 )
 
 search_agent = Agent(
-    name="FinancialSearchAgent",
+    name="SearchAgent",
     instructions=INSTRUCTIONS,
     tools=[WebSearchTool()],
     model_settings=ModelSettings(tool_choice="required"),
