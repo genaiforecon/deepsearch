@@ -1,12 +1,12 @@
 import os
-import getpass
 
 from langchain.prompts import PromptTemplate
 from langchain.agents import Tool
 from langchain_openai import ChatOpenAI  # Updated import
 
-if not os.environ.get("OPENAI_API_KEY"):
-    os.environ["OPENAI_API_KEY"] = getpass.getpass("Enter API key for OpenAI: ")
+if "OPENAI_API_KEY" not in os.environ:
+        api_key = input("Enter your OpenAI API key: ")
+        os.environ["OPENAI_API_KEY"] = api_key
 
 # Helper: Extract text from result objects.
 def extract_text(result):
