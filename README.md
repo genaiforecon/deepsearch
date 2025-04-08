@@ -6,7 +6,6 @@ This repo contains two DIY "deep research" workflows, one a minimal setup based 
    
 First, install relevant dependencies
 ```
-pip install getpass
 pip install langchain
 pip install -U langchain-community 
 pip install -U langchain-openai
@@ -14,11 +13,10 @@ pip install -U langchain-openai
 Then simply downlaod and run `langchain_search.py`. The file is self-contained and can easily be ammended. More details on the workflow can be found in the description of the OpenAI interface version below. 
 
 2. **[OpenAI SDK](https://openai.github.io/openai-agents-python/)**
+
+The most stripped-down version can be found in the "minimal_openai" folder, which you can access by cloning the repo and entering the subdirectory. This directory also has its own readme file. The general workflow is the following -- You will be prompted to enter a query. After an initial report is generated, a "verifier" will check the report to see if the query has been satisfied. If not, it will list the reasons why, and both reports will be outputted. The full version, described below, has an additional iteration if the verifier agent does not approve. 
    
-After cloning this repo and entering the directory, first set your OpenAI API key. In Windows Powershell, the command is `$env:OPENAI_API_KEY="xxx"`. Then run `python  -m examples.deep_research_agent.main`. You will then be prompted to enter a query. After an initial report is generated, a "verifier" will check the report to see if the query has been satisfied. If not, it will list the reasons why, which then prompt the deep research process to start over with these reccomendations in mind. After this second iteration (or if the verifier agent approves on the first try), the report will be outputted, along with the verifier agent's assessment. The maximum number of verifier iterations can be modified, as well as what models are used at each step of the process (better models will naturally make this more expensive).
-
-More description about the OpenAI interface can be found below. This is taken directly from their [GitHub repo](https://github.com/openai/openai-agents-python/tree/main). 
-
+The full version is based off of OpenAI's own code. More description about the OpenAI interface can be found in the next section. This is taken directly from their [GitHub repo](https://github.com/openai/openai-agents-python/tree/main). For the full version, first set your OpenAI API key. In Windows Powershell, the command is `$env:OPENAI_API_KEY="xxx"`. Then run `python  -m examples.deep_research_agent.main`. For the full version, the "deep research" process will start over with the verifier's report if they're not satisfied. The maximum number of verifier iterations can be modified, as well as what models are used at each step of the process (better models will naturally make this more expensive). Reports from the full version tend to be of much higher quality. 
 
 # OpenAI Agents SDK
 
