@@ -1,0 +1,18 @@
+{
+  "dependencies": ["agent"],
+  "graphs": {
+    "research_agent": "agent:run_deep_research",
+    ".": "agent:run_deep_research"
+  },
+  "input_schema": {
+    "research_agent": {
+      "query": {"type": "string"},
+      "max_attempts": {"type": "integer", "default": 2}
+    },
+    ".": {
+      "query": {"type": "string"},
+      "max_attempts": {"type": "integer", "default": 2}
+    }
+  },
+  "env": ".env"
+}
