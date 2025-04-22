@@ -10,7 +10,7 @@ pip install langchain
 pip install -U langchain-community 
 pip install -U langchain-openai
 ```
-Then simply downlaod and run `langchain_search.py`. The file is self-contained and can easily be ammended. More details on the workflow can be found in the description of the OpenAI interface version below. 
+Then simply downlaod and run `langchain_search.py`. The file is self-contained and can easily be ammended. More details on the workflow can be found in the description of the OpenAI interface version below. A visual workflow can be done by using LangGraph -- the equivolent setup is in the my_agent directory. 
 
 2. **[OpenAI SDK](https://openai.github.io/openai-agents-python/)**
 
