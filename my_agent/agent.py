@@ -1,45 +1,27 @@
 from __future__ import annotations
-
-"""A LangGraph workflow that plans searches, retrieves sources, drafts a report, and
-verifies it in a loop until the verifier is satisfied or `max_attempts` is
-reached.
-
-Exports `run_deep_research`, the variable that LangGraph Runtime looks for by
-default.  This resolves the startup error: "Could not find graph
-'run_deep_research'".
-"""
-
-# ──────────────────────────────────────────────────────────────────────────────
-# Standard library & typing
-# ──────────────────────────────────────────────────────────────────────────────
 import asyncio
 from typing import List, Literal, NotRequired, TypedDict
-
-# Third‑party
 from langchain.agents import Tool
 from langchain.prompts import PromptTemplate
 from langchain_openai import ChatOpenAI
 from langchain_core.runnables import RunnableConfig
 from langgraph.graph import END, StateGraph
-
-
+"""A LangGraph workflow that plans searches, retrieves sources, drafts a report, and
+verifies it in a loop until the verifier is satisfied or `max_attempts` is
+reached.
+"""
 # ──────────────────────────────────────────────────────────────────────────────
 # Helper
 # ──────────────────────────────────────────────────────────────────────────────
-
-def extract_text(result) -> str:
-    """Pull plain text out of various LCEL/LLM return shapes."""
+def extract_text(result) -> str: #Pull plain text out of various LCEL/LLM return shapes.
     if isinstance(result, dict):
         return result.get("text") or result.get("result") or ""
     if hasattr(result, "content"):
         return result.content  # type: ignore[attr-defined]
     return str(result)
-
-
 # ──────────────────────────────────────────────────────────────────────────────
 # Chain: planner → writer → verifier
 # ──────────────────────────────────────────────────────────────────────────────
-
 ## Planner
 planner_prompt = PromptTemplate(
     input_variables=["query"],
@@ -82,7 +64,7 @@ writer_chain = writer_prompt | writer_llm
 verifier_prompt = PromptTemplate(
     input_variables=["query", "report"],
     template=(
-        "You are a meticulous referee for the *American Economic Review*.\n"
+        "You are a meticulous copyeditor for the *American Economic Review*.\n"
         "Given the original query: '{query}' and the draft report below,\n"
         "1. Does the report fully satisfy the query?\n"
         "2. Is it internally consistent with no unsupported claims?\n"
@@ -93,7 +75,6 @@ verifier_prompt = PromptTemplate(
 )
 verifier_llm = ChatOpenAI(temperature=0.2, max_tokens=1024)
 verifier_chain = verifier_prompt | verifier_llm
-
 
 # ──────────────────────────────────────────────────────────────────────────────
 # Graph state
@@ -108,28 +89,14 @@ class ResearchState(TypedDict):
     report: str
     verifier_feedback: str
     status: Literal[
-        "planning",
-        "searching",
-        "writing",
-        "verifying",
-        "complete",
-        "failed",
+        "planning","searching", "writing", "verifying","complete","failed",
     ]
     feedback_clause: NotRequired[str]
 
-# Default state (every key present so downstream nodes avoid KeyError)
 DEFAULT_STATE: ResearchState = {
-    "query": "",
-    "max_attempts": 2,
-    "attempt": 1,
-    "search_terms": [],
-    "search_results": "",
-    "report": "",
-    "verifier_feedback": "",
-    "feedback_clause": "",
-    "status": "planning",
+    "query": "", "max_attempts": 2,  "attempt": 1,  "search_terms": [],  "search_results": "",
+    "report": "", "verifier_feedback": "", "feedback_clause": "", "status": "planning",
 }
-
 
 # ──────────────────────────────────────────────────────────────────────────────
 # Node implementations
@@ -140,30 +107,25 @@ def init_state(state: dict) -> ResearchState:
     merged: ResearchState = {**DEFAULT_STATE, **state}
     return merged
 
-
 def planning(state: ResearchState) -> ResearchState:
     planner_output = extract_text(planner_chain.invoke({"query": state["query"]}))
     search_terms = [line.strip() for line in planner_output.split("\n") if line.strip()]
     return {**state, "search_terms": search_terms, "status": "searching"}
 
-
 def searching(state: ResearchState) -> ResearchState:
     results = [_search(term) for term in state["search_terms"]]
     return {**state, "search_results": "\n".join(results), "status": "writing"}
-
 
 def writing(state: ResearchState) -> ResearchState:
     report = extract_text(
         writer_chain.invoke(
             {
-                "query": state["query"],
-                "search_results": state["search_results"],
+                "query": state["query"], "search_results": state["search_results"],
                 "feedback_clause": state.get("feedback_clause", ""),
             }
         )
     )
     return {**state, "report": report, "status": "verifying"}
-
 
 def verifying(state: ResearchState) -> ResearchState:
     feedback = extract_text(
@@ -178,7 +140,6 @@ def verifying(state: ResearchState) -> ResearchState:
         if not satisfied
         else ""
     )
-
     return {
         **state,
         "verifier_feedback": feedback,
@@ -187,18 +148,8 @@ def verifying(state: ResearchState) -> ResearchState:
         "status": new_status,
     }
 
-
-# ──────────────────────────────────────────────────────────────────────────────
-# Routing
-# ──────────────────────────────────────────────────────────────────────────────
-
 def _route(state: ResearchState):
     return state["status"]
-
-
-# ──────────────────────────────────────────────────────────────────────────────
-# Compile graph
-# ──────────────────────────────────────────────────────────────────────────────
 
 def _compile() -> StateGraph:
     g = StateGraph(ResearchState)
@@ -218,7 +169,6 @@ def _compile() -> StateGraph:
     )
     return g.compile()
 
-
 # ──────────────────────────────────────────────────────────────────────────────
 # Public API required by LangGraph Runtime
 # ──────────────────────────────────────────────────────────────────────────────
@@ -227,13 +177,7 @@ def run_deep_research(config: RunnableConfig | None = None):
     """Entry point used by LangGraph Runtime (env var `LANGGRAPH_GRAPH_SPEC`)."""
     return _compile()
 
-# Convenience synonyms --------------------------------------------------------
 run_graph = run_deep_research
-
-
-# ──────────────────────────────────────────────────────────────────────────────
-# CLI helper (optional)
-# ──────────────────────────────────────────────────────────────────────────────
 
 def _run_cli():
     query = input("Enter your research query: ")
